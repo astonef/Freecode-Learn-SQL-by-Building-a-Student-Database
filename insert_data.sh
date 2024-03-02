@@ -1,11 +1,11 @@
 #!/bin/bash
-# Sono a 1047 da fare
+
 
 PSQL="psql -X --username=postgres --dbname=students --no-align --tuples-only -c"
 
 echo $($PSQL "TRUNCATE students, majors, courses, major_courses")
 
-cat courses_test.csv | while IFS="," read MAJOR COURSE
+cat courses.csv | while IFS="," read MAJOR COURSE
 	
 do
 
@@ -78,7 +78,7 @@ if [[ $INSERT_MAJORS_COURSES_RESULT == "INSERT 0 1" ]]
 
 done	
 
-cat students_test.csv | while IFS="," read FIRST LAST MAJOR GPA
+cat students.csv | while IFS="," read FIRST LAST MAJOR GPA
 do
   if [[ $FIRST != "first name" ]]
   
@@ -91,14 +91,21 @@ do
   echo $MAJOR_ID
 
   #if not found
-
-
+ if [[ -z $MAJOR_ID ]]
+ then
   #set to null
+MAJOR_ID=null
+ fi
+ 
+ #insert student
+ INSERT_STUDENT_RESULT=$($PSQL "INSERT INTO students(first_name, last_name, major_id, gpa) VALUES('$FIRST', '$LAST', $MAJOR_ID, $GPA)")
 
 
-  #insert student
+if [[ $INSERT_STUDENT_RESULT == "INSERT 0 1" ]]
+then
+	echo "Inserted into students, $FIRST $LAST"
+fi	
 
-  
   fi  
 done
 
